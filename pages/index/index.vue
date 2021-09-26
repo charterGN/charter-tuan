@@ -1,24 +1,34 @@
 <template>
-	<view class="content">
-		{{initData}}
-	</view>
+	<view class="content"></view>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapActions } from 'vuex';
 export default {
-	computed: {
-		// 第二种state获取方式，利用对象，进行函数化返回状态值
-		// ...mapState({
-		// 	initData: state => state.indexModule.initData
-		// })
+	methods: {
+		// 第二种调用actions方式，利用命名空间与动作名称的数组映射
+		// ...mapActions(['indexModule/getPosts'])
 		
-		// 第三方state获取方式，利用命名空间与状态数组列表进行映射
-		...mapState('indexModule',['initData'])
+		// 第三种调用actions方式，利用声明命名空间以及动作数组列表的方式映射
+		// ...mapActions('indexModule',['getPosts'])
+		
+		// 第四种调用actions方式，利用声明命名空间以及对象别名的方式进行映射
+		...mapActions('indexModule',{
+			getIndexPosts:'getPosts'
+		})
 	},
 	mounted() {
-		// 第一种state获取方式，直接利用store调用
-		// console.log(this.$store.state.indexModule.initData);
+		// 第一种调用actions方式，直接利用store调用
+		// this.$store.dispatch('indexModule/getPosts');
+		
+		// 第二种调用actions方式，利用命名空间与动作名称的数组映射，并且进行函数化调用
+		// this['indexModule/getPosts']();
+		
+		// 第三种调用actions方式，利用声明命名空间以及动作数组列表的方式映射
+		// this.getPosts();
+		
+		// 第四种调用actions方式，利用声明命名空间以及对象别名的方式进行映射
+		this.getIndexPosts();
 	}
 };
 </script>
