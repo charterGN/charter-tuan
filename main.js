@@ -1,11 +1,14 @@
 import App from './App'
 import Vue from 'vue'
 import uView from "uview-ui";
+import store from './store'
+
 Vue.use(uView);
 Vue.config.productionTip = false
 App.mpType = 'app'
 const app = new Vue({
-    ...App
+    ...App,
+	store
 })
 
 // http拦截器，将此部分放在new Vue()和app.$mount()之间，才能App.vue中正常使用

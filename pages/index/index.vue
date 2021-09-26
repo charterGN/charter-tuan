@@ -1,36 +1,25 @@
 <template>
 	<view class="content">
-		<u-button type="primary">主要按钮</u-button>
-		<view>时间为：{{$u.timeFormat(timestamp, 'yyyy年mm月dd日')}}</view>
-		<view>时间为：{{time}}</view>
-		<image class="logo" src="/static/logo.png"></image>
-		<view class="text-area">
-			<text class="title">{{ title }}</text>
-		</view>
+		{{initData}}
 	</view>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
-	data() {
-		return {
-			title: 'Hello',
-			time: null,
-			timestamp: '1581170184'
-		};
-	},
-	onLoad() {
-		this.time = this.$u.timeFormat(this.timestamp, 'yyyy-mm-dd');
+	computed: {
+		// 第二种state获取方式，利用对象，进行函数化返回状态值
+		// ...mapState({
+		// 	initData: state => state.indexModule.initData
+		// })
 		
-		this.$u.get('https://jsonplaceholder.typicode.com/posts/1').then(res=>{
-			console.log(res)
-		})
-		
-		this.$u.api.getPosts().then(res => {
-			console.log(res);
-		})
+		// 第三方state获取方式，利用命名空间与状态数组列表进行映射
+		...mapState('indexModule',['initData'])
 	},
-	methods: {}
+	mounted() {
+		// 第一种state获取方式，直接利用store调用
+		// console.log(this.$store.state.indexModule.initData);
+	}
 };
 </script>
 
