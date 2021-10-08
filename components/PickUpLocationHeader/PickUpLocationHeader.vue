@@ -93,13 +93,22 @@ export default {
 			this.$emit('update:searchKeyword', value);
 		}
 	},
+	watch: {
+		searchKeyword: {
+			handler(newVal, oldVal) {
+				console.log(newVal,oldVal)
+				this.searchLocation(newVal);
+			},
+			immediate: true
+		}
+	},
 	mounted() {
 		this.getSysRegionFindAllListAction();
 	}
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .gg {
 	&-header {
 		display: flex;
