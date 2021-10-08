@@ -2,9 +2,12 @@
 	<view class="gg" v-if="token">
 		<!-- 利用background-image设置导航的线形渐变色彩 -->
 		<u-navbar :is-back="false" :border-bottom="false" :background="{ 'background-image': 'linear-gradient(to right, rgb(255,180,61), rgb(255, 101, 0))' }">
-			<view class="gg-map-slot-wrap u-font-xs u-m-l-20 u-p-l-10 u-p-r-10 u-p-t-5 u-p-b-5">
+			<view class="gg-map-slot-wrap u-font-xs u-m-l-20 u-p-l-10 u-p-r-10 u-p-t-5 u-p-b-5" @click="pickUpLocation">
 				<u-icon name="map" size="24"></u-icon>
-				<text class="u-p-l-10 u-p-r-10">{{ leaderAddressVo.takeName ? leaderAddressVo.takeName : '请设置提货点' }}</text>
+				<text class="u-p-l-10 u-p-r-10">
+				{{ leaderAddressVo.takeName 
+				? leaderAddressVo.takeName 
+				: '请设置提货点' }}</text>
 				<u-icon name="arrow-right" size="20"></u-icon>
 			</view>
 		</u-navbar>
@@ -224,26 +227,72 @@ export default {
 			this.$u.debounce(() => {
 				this.categorySVPercent = percent;
 			}, 100);
-		}
+		},
+		// 跳转至设置提货点
+		pickUpLocation() {
+			this.$u.route('/pagesLocation/myPickUpLocation/myPickUpLocation');
+		},
 	},
 	watch: {
+		/* ------------------------------------------------------------
+		watch监控第一部分，函数式监控
+		1.只能监控单层数据，不能立即监控，只有数据变化的时候才可以
+		2.深度监控无法实现
+		3.函数不可以使用箭头函数，否则this对象无法找到
+		------------------------------------------------------------ */
+		// leaderAddressVo: function() {
+		// 	console.log('normal watch', this.leaderAddressVo);
+		// }
+		/* ------------------------------------------------------------
+		watch监控第二部分，对象式监控
+		1.immediate立即监控的触发次数，无论如何先会触发一次，监控数据变化
+		2.深度监控的作用，直接监控对象属性值的变化
+		3.监控次数的判断
+			1)因为立即监控，所以页面初始会触发一次
+			2)可以设置全局变量进行判断条件依据
+			3)利用监控次数确认路由的跳转
+		------------------------------------------------------------ */
+		// 'leaderAddressVo.userId': {
+		// 	handler(newVal) {
+		// 		watchTimes++;
+		// 		if (watchTimes > 1) {
+		// 			watchTimes = 0;
+		// 			if (!newVal) {
+		// 				console.log('immediate deep watch');
+		// 			}
+		// 		}
+		// 	},
+		// 	immediate: true,
+		// 	deep: true
+		// }
+		/* ------------------------------------------------------------
+		watch监控第三部分，对象式监控
+		1.immediate的去除
+		2.等mounted请求结束，数据设置完毕以后再进行数据变化的监控
+		3.不需要进行监控次数的判断
+		------------------------------------------------------------ */
 		'leaderAddressVo.userId': {
 			handler(newVal) {
-				watchTimes++;
-				if (watchTimes > 1) {
-					watchTimes = 0;
-					if (!newVal) {
-						uni.reLaunch({
-							url: '../cart/cart'
-						});
-					}
+				if (!newVal) {
+					uni.redirectTo({
+						url:'/pagesLocation/myPickUpLocation/myPickUpLocation'
+					})
 				}
 			},
-			immediate: true,
 			deep: true
 		}
 	},
+	onShow() {
+		/* 
+		 onShow比mounted先执行
+		 mounted中有获取数据的异步请求，本身是异步，还需要再进行数据设置获取
+		 onShow已经执行完毕，是否能确认leaderAddressVo对象的内容变化？不能
+		 是否能在onShow中利用leaderAddressVo进行条件判断？不能
+		*/
+		console.log('leaderAddressVo:', this.leaderAddressVo);
+	},
 	async mounted() {
+		console.log('mounted');
 		const token = await uni.getStorageSync('token');
 		if (this.$u.test.isEmpty(token)) {
 			uni.reLaunch({
