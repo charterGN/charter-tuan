@@ -303,6 +303,7 @@ export default {
 
 		this.token = token;
 		await this.getHomeIndexAction();
+		uni.$emit('changeTabbarBadage',1988)
 	}
 };
 </script>
