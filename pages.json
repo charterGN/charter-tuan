@@ -4,6 +4,13 @@
 	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationStyle": "custom", // 隐藏系统导航栏
+				"navigationBarTextStyle": "white", // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+				"navigationBarTitleText": "uni-app"
+			}
+		}, {
 			"path": "pages/categories/categories",
 			"style": {
 				"navigationStyle": "custom", // 隐藏系统导航栏
@@ -12,15 +19,9 @@
 			}
 
 		}, {
-			"path": "pages/index/index",
-			"style": {
-				"navigationStyle": "custom", // 隐藏系统导航栏
-				"navigationBarTextStyle": "white", // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
-				"navigationBarTitleText": "uni-app"
-			}
-		}, {
 			"path": "pages/cart/cart",
 			"style": {
+				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarTitleText": "购物车",
 				"enablePullDownRefresh": false
 			}
@@ -28,6 +29,7 @@
 		}, {
 			"path": "pages/my/my",
 			"style": {
+				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarTitleText": "我的",
 				"enablePullDownRefresh": false
 			}
@@ -39,18 +41,17 @@
 				"enablePullDownRefresh": false
 			}
 
-		}
-	    ,{
-            "path" : "pages/homeItem/homeItem",
-            "style" :                                                                                    
-            {
+		}, {
+			"path": "pages/homeItem/homeItem",
+			"style": {
 				"navigationStyle": "custom", // 隐藏系统导航栏
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}
+
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
@@ -88,20 +89,56 @@
 		]
 	},
 	"subPackages": [{
-		"root": "pagesLocation",
-		"pages": [{
-			"path": "myPickUpLocation/myPickUpLocation",
-			"style": {
-				"navigationBarTitleText": "我的提货点",
-				"enablePullDownRefresh": false
-			}
-		}, {
-			"path": "choosePickUpLocation/choosePickUpLocation",
-			"style": {
-				"navigationBarTitleText": "选择其它提货点",
-				"enablePullDownRefresh": false
-			}
+			"root": "pagesLocation",
+			"pages": [{
+				"path": "myPickUpLocation/myPickUpLocation",
+				"style": {
+					"navigationBarTitleText": "我的提货点",
+					"enablePullDownRefresh": false
+				}
+			}, {
+				"path": "choosePickUpLocation/choosePickUpLocation",
+				"style": {
+					"navigationBarTitleText": "选择其它提货点",
+					"enablePullDownRefresh": false
+				}
+			}]
+		},
+		{
+			"root": "pagesOrder",
+			"pages": [{
+				"path": "confirmOrder/confirmOrder",
+				"style": {
+					"navigationBarTitleText": "确认订单",
+					"enablePullDownRefresh": false,
+					"navigationStyle": "custom" // 隐藏系统导航栏
+				}
+			}, {
+				"path": "getOrderInfo/getOrderInfo",
+				"style": {
+					"navigationBarTitleText": "确认支付",
+					"enablePullDownRefresh": false,
+					"navigationStyle": "custom" // 隐藏系统导航栏
+				}
+			}, {
+				"path": "orderList/orderList",
+				"style": {
+					"navigationBarTitleText": "订单列表",
+					"enablePullDownRefresh": false
+				}
 
-		}]
-	}]
+			}]
+		},
+		{
+			"root": "pagesSeckill",
+			"pages": [{
+				"path": "seckill/seckill",
+				"style": {
+					"navigationBarTitleText": "限时秒杀",
+					"enablePullDownRefresh": false,
+					"navigationStyle": "custom" // 隐藏系统导航栏
+				}
+			}]
+		}
+	]
 }

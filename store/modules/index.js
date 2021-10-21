@@ -46,6 +46,8 @@ const actions = {
 		dispatch('pickUpLocationModule/changeLeaderAddressVoAction', result.leaderAddressVo, {
 			root: true
 		})
+		
+		dispatch('cartModule/getCartListAction',{},{root:true})
 	}
 };
 export default {

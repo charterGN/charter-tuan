@@ -16,6 +16,10 @@
 				:max="getMax"
 			></u-number-box>
 		</block>
+		
+		<u-modal v-model="showConfirmModal" @confirm="modalConfirm" @cancel="modalCancel" :show-cancel-button="true" ref="confirmModal" :async-close="true">
+			<view class="u-flex u-row-center u-m-20">确认删除该商品？</view>
+		</u-modal>
 	</view>
 </template>
 
@@ -25,7 +29,9 @@ export default {
 	name: 'AddToCart',
 	data() {
 		return {
-			id: 0
+			id: 0,
+			isCart: false,
+			showConfirmModal: false
 		};
 	},
 	props: {
@@ -77,12 +83,29 @@ export default {
 		},
 		// 购物车数量递减
 		changeSkuNumMinus(e) {
-			this.changeSkuNumAction({ skuId: this.id, value: -1, currentBuyNum: e.value });
+			// 如果是购物车中进行递减操作，并且购物车数量为0，那么需要弹出确认框
+			if (e.value < 1 && this.isCart) {
+				this.showConfirmModal = true;
+			} else {
+				this.changeSkuNumAction({ skuId: this.id, value: -1, currentBuyNum: e.value, isCart: this.isCart });
+			}
+			
 		},
 		// 购物车数量递增
 		changeSkuNumPlus(e) {
-			this.changeSkuNumAction({ skuId: this.id, value: 1, currentBuyNum: e.value });
-		}
+			this.changeSkuNumAction({ skuId: this.id, value: 1, currentBuyNum: e.value,isCart: this.isCart });
+		},
+		// 确认删除商品模态框
+		modalConfirm() {
+			this.showConfirmModal = false;
+			this.changeSkuNumAction({ skuId: this.id, value: -1, currentBuyNum: 0, isCart: this.isCart });
+		},
+		// 取消删除商品模态框，只需要将商品购买数修改回初始值
+		modalCancel() {
+			this.showConfirmModal = false;
+			// 重新设置u-number-box的初始值
+			this.$refs.uNumber.$data.inputVal = 1;
+		},
 	},
 	watch: {
 		// skuId是在购物车频道使用，如果是商品列表，是id
@@ -90,8 +113,10 @@ export default {
 			handler(newVal, oldVal) {
 				if (newVal) {
 					this.id = newVal;
+					this.isCart = true;
 				} else {
 					this.id = this.shopDetail.id;
+					this.isCart = false;
 				}
 			},
 			immediate: true

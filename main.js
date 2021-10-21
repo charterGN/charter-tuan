@@ -2,7 +2,9 @@ import App from './App'
 import Vue from 'vue'
 import uView from "uview-ui";
 import store from './store'
+import dayjs from 'dayjs';
 
+Vue.prototype.$dayjs = dayjs;
 Vue.use(uView);
 Vue.config.productionTip = false
 App.mpType = 'app'

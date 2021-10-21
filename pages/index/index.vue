@@ -4,10 +4,7 @@
 		<u-navbar :is-back="false" :border-bottom="false" :background="{ 'background-image': 'linear-gradient(to right, rgb(255,180,61), rgb(255, 101, 0))' }">
 			<view class="gg-map-slot-wrap u-font-xs u-m-l-20 u-p-l-10 u-p-r-10 u-p-t-5 u-p-b-5" @click="pickUpLocation">
 				<u-icon name="map" size="24"></u-icon>
-				<text class="u-p-l-10 u-p-r-10">
-				{{ leaderAddressVo.takeName 
-				? leaderAddressVo.takeName 
-				: '请设置提货点' }}</text>
+				<text class="u-p-l-10 u-p-r-10">{{ leaderAddressVo.takeName ? leaderAddressVo.takeName : '请设置提货点' }}</text>
 				<u-icon name="arrow-right" size="20"></u-icon>
 			</view>
 		</u-navbar>
@@ -42,10 +39,17 @@
 					<view class="u-font-lg u-content-color">新人专享低价好物</view>
 					<scroll-view scroll-x enable-flex class="gg-new-vip-sv">
 						<view class="u-flex u-m-t-10">
-							<view class="gg-new-vip-sv-item u-p-r-20" v-for="(item, index) in newPersonSkuInfoList" :key="item.id">
-								<ListImgItem :src="item.imgUrl" width="200rpx" height="200rpx"></ListImgItem>
+							<view class="gg-new-vip-sv-item u-p-r-20" v-for="(item, index) in newPersonSkuInfoList" :key="item.id" @click="gotoProductItem(item.id)">
+								<ListImgItem
+									:src="item.imgUrl"
+									width="200rpx"
+									height="200rpx"
+									:showLeft="item.skuType === 1"
+									:showRight="false"
+									:showBottom="item.skuType === 0 && item.isNewPerson === 1"
+								></ListImgItem>
 								<text class="u-type-error">￥ {{ item.price }}</text>
-								<AddToCart></AddToCart>
+								<AddToCart :shopDetail="item" :skuId="item.id"></AddToCart>
 							</view>
 						</view>
 					</scroll-view>
@@ -84,17 +88,17 @@
 							<text class="u-font-sm">{{ seckillTime.name }}场 {{ seckillTime.startTime }}-{{ seckillTime.endTime }}</text>
 						</view>
 					</view>
-					<u-button :plain="true" size="mini">查看全部 ></u-button>
+					<u-button :plain="true" size="mini" @click="gotoSeckill">查看全部 ></u-button>
 				</view>
 				<view class="u-m-20 u-p-20 gg-border">
 					<scroll-view enable-flex scroll-x>
 						<view class="u-flex u-p-r-20 u-p-t-20">
 							<!-- 循环滚动内容 -->
-							<view class="u-p-l-20 u-p-r-20 u-text-center" v-for="item in seckillSkuVoList" :key="item.skuId">
+							<view class="u-p-l-20 u-p-r-20 u-text-center" v-for="item in seckillSkuVoList" :key="item.skuId" @click="gotoProductItem(item.skuId)">
 								<text class="u-font-sm u-m-b-5">{{ item.timeName }}</text>
 								<u-image :src="item.imgUrl" border-radius="30rpx" width="200rpx" height="200rpx"></u-image>
 								<text class="u-font-sm u-m-t-5">{{ item.skuName }}</text>
-								<AddToCart></AddToCart>
+								<AddToCart :shopDetail="item" :skuId="item.skuId"></AddToCart>
 							</view>
 						</view>
 					</scroll-view>
@@ -120,9 +124,16 @@
 
 			<!-- 热销好货 -->
 			<view class="u-font-xl u-type-error u-m-20">热销好货</view>
-			<view class="u-p-20 u-m-20 gg-border" v-for="(item, index) in hotSkuList" :key="item.id">
+			<view class="u-p-20 u-m-20 gg-border" v-for="(item, index) in hotSkuList" :key="item.id" @click="gotoProductItem(item.id)">
 				<view class="u-m-b-10 u-m-l-20 u-m-r-20 u-flex gg-product-item">
-					<ListImgItem :src="item.imgUrl" width="200rpx" height="200rpx"></ListImgItem>
+					<ListImgItem
+						:src="item.imgUrl"
+						width="250rpx"
+						height="250rpx"
+						:showLeft="item.skuType === 1"
+						:showRight="false"
+						:showBottom="item.skuType === 0 && item.isNewPerson === 1"
+					></ListImgItem>
 					<view class="gg-product-item-msg u-border-bottom u-p-b-20 u-m-l-20">
 						<view class="gg-product-item-msg-title">
 							<view class="u-font-lg">{{ item.title }}</view>
@@ -136,7 +147,7 @@
 								<text>￥</text>
 								<text class="gg-product-item-msg-price-value">{{ item.price }}</text>
 							</view>
-							<AddToCart></AddToCart>
+							<AddToCart :shopDetail="item"></AddToCart>
 						</view>
 					</view>
 				</view>
@@ -232,6 +243,14 @@ export default {
 		pickUpLocation() {
 			this.$u.route('/pagesLocation/myPickUpLocation/myPickUpLocation');
 		},
+		// 跳转至商品详情页
+		gotoProductItem(skuId) {
+			this.$u.route('/pages/homeItem/homeItem', { skuId });
+		},
+		// 跳转至秒杀页
+		gotoSeckill() {
+			this.$u.route('/pagesSeckill/seckill/seckill');
+		}
 	},
 	watch: {
 		/* ------------------------------------------------------------
@@ -275,8 +294,8 @@ export default {
 			handler(newVal) {
 				if (!newVal) {
 					uni.redirectTo({
-						url:'/pagesLocation/myPickUpLocation/myPickUpLocation'
-					})
+						url: '/pagesLocation/myPickUpLocation/myPickUpLocation'
+					});
 				}
 			},
 			deep: true
@@ -303,7 +322,6 @@ export default {
 
 		this.token = token;
 		await this.getHomeIndexAction();
-		uni.$emit('changeTabbarBadage',1988)
 	}
 };
 </script>

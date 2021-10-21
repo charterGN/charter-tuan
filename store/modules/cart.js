@@ -1,6 +1,7 @@
 import Vue from "vue"
 const state = {
 	cartList: [],
+	activityCartList: {}
 };
 
 const getters = {
@@ -17,6 +18,77 @@ const getters = {
 			const index = state.cartList.findIndex(item => item.skuId === skuId);
 			return index !== -1 ? state.cartList[index].skuNum : 0;
 		}
+	},
+	// 获取购物车商品信息列表
+	getCartInfoList(state) {
+		return state.activityCartList.carInfoVoList
+	},
+	// 是否显示包含多个商品的内容
+	showMultiCheckbox(state) {
+		return function(index) {
+			return state.activityCartList.carInfoVoList[index].cartInfoList.length > 1
+		}
+	},
+	// 确认多个商品项是否为选中
+	getMultiCheckCart(state) {
+		return function(index) {
+			return state.activityCartList.carInfoVoList[index].cartInfoList.every(item => item.isChecked === 1);
+		}
+	},
+	// 获取多个商品项的ids
+	getMultiCheckedIds(state) {
+		return function(index) {
+			let ids = []
+			state.activityCartList.carInfoVoList[index].cartInfoList.forEach(item => ids.push(item.skuId));
+			return ids.toString();
+		}
+	},
+	// 判断是否全选
+	isAllSelected(state) {
+		let isAllSelected = true;
+		state.activityCartList.carInfoVoList && state.activityCartList.carInfoVoList
+			.forEach(carInfoItem => {
+				carInfoItem.cartInfoList.forEach(cartInfoItem => {
+					if (cartInfoItem.isChecked === 0) {
+						isAllSelected = false;
+						return false;
+					}
+				})
+			})
+		return isAllSelected;
+	},
+	// 获取购物车价格信息
+	getCartPriceInfo(state) {
+		if (!state.activityCartList.totalAmount) {
+			return {
+				couponReduceAmount: 0,
+				originalTotalAmount: 0,
+				totalAmount: 0
+			}
+		}
+	
+		return {
+			couponReduceAmount: state.activityCartList.couponReduceAmount,
+			originalTotalAmount: state.activityCartList.originalTotalAmount,
+			totalAmount: state.activityCartList.totalAmount
+		}
+	},
+	// 确认选中购物车的数量
+	getSelectedCount(state) {
+		let count = 0;
+		state.activityCartList.carInfoVoList && state.activityCartList.carInfoVoList
+			.forEach(carInfoItem => {
+				carInfoItem.cartInfoList.forEach(cartInfoItem => {
+					if (cartInfoItem.isChecked === 1) {
+						count += cartInfoItem.skuNum;
+					}
+				})
+			})
+		return count;
+	},
+	// 获取购物车优惠券信息列表
+	getCartCouponInfoList(state) {
+		return state.activityCartList.couponInfoList
 	},
 }
 
@@ -53,6 +125,11 @@ const mutations = {
 		const cartListIndex = state.cartList.findIndex(item => item.skuId === payload);
 		state.cartList.splice(cartListIndex, 1)
 	},
+	// 获取带活动的购物车列表
+	getActivityCartListMutation(state, payload) {
+		state.activityCartList = payload
+	},
+
 }
 const actions = {
 	// 添加到购物车
@@ -86,6 +163,7 @@ const actions = {
 			skuId,
 			value,
 			currentBuyNum,
+			isCart
 		} = payload;
 		// 如果当前购买的数量小于1，则需要将该商品从购物车中删除，否则进行购物车数量的修改
 		if (currentBuyNum < 1) {
@@ -97,6 +175,10 @@ const actions = {
 			})
 			commit('changeSkuNumMutation', payload)
 		}
+		
+		// 通过isCart判断是否是在购物车里进行购物车数量的改变，
+		// 如果是在购物车里进行数量变化，则还需要获取带活动的购物车列表
+		if (isCart) dispatch('getActivityCartListAction')
 
 	},
 	// 删除购物车
@@ -111,7 +193,46 @@ const actions = {
 			isCart
 		} = payload;
 		await this._vm.$u.api.deleteCart(skuId);
+		
+		// 删除时如果是在购物车列表操作，则需要重新获取数据
+		if (isCart) await dispatch('getActivityCartListAction')
 		await commit('deleteShopMutation', skuId)
+	},
+	// 获取带活动的购物车列表
+	async getActivityCartListAction({
+		commit
+	}, payload) {
+		let showLoading = false;
+		if (payload) showLoading = true
+
+		let result = await this._vm.$u.api.getActivityCartList({
+			showLoading
+		})
+		commit('getActivityCartListMutation', result)
+	},
+	// 切换购物车商品的选中状态
+	async changeCheckCartAction({
+		commit,
+		dispatch
+	}, payload) {
+		let result = await this._vm.$u.api.getCheckCart(payload)
+		dispatch('getActivityCartListAction')
+	},
+	// 对指定的多个商品进行选择/反选
+	async changeMultiCheckedCartAction({
+		commit,
+		dispatch
+	}, payload) {
+		let result = await this._vm.$u.api.postBatchCheckCart(payload)
+		dispatch('getActivityCartListAction')
+	},
+	// 对所有购物车商品进行全选/反选
+	async changeAllCheckCartAction({
+		commit,
+		dispatch
+	}, payload) {
+		let result = await this._vm.$u.api.getCheckAllCart(payload)
+		dispatch('getActivityCartListAction')
 	},
 };
 
